@@ -1,4 +1,4 @@
-name: myenv
+name: testenv
 channels:
   - conda-forge
   - defaults
@@ -7,4 +7,3 @@ dependencies:
   - pip
   - pip:
     - python-telegram-bot
-    - bitcoin 
