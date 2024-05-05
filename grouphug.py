@@ -68,7 +68,7 @@ def validate_transaction(tx_raw):
         return False, f"Error during transaction validation: {e}"
 
 def main() -> None:
-    application = Application.builder().token('6931522973:AAGNw6qVUAegczzhSSZlwqOSr77MuVOPfD0').build()
+    application = Application.builder().token('TELEGRAM_BOT_TOKEN').build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_transaction))
