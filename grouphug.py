@@ -10,19 +10,22 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def handle_transaction(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     tx_raw = update.message.text
-    if validate_transaction(tx_raw):
-        message = f"add_tx {tx_raw}"
-        response = await send_to_server(message)
-        if response:
-            await update.message.reply_text('Transaction formatted and sent for processing. Server responded with: ' + response)
+    is_valid, message = validate_transaction(tx_raw)
+    if is_valid:
+        # Form the message to send to the server
+        message_to_send = f"add_tx {tx_raw}"
+        # Send the transaction to the server
+        server_response = await send_to_server(message_to_send)
+        if server_response:
+            await update.message.reply_text('Transaction processed. Server response: ' + server_response)
         else:
             await update.message.reply_text('Failed to communicate with server.')
     else:
-        await update.message.reply_text('Transaction does not meet the required criteria.')
+        await update.message.reply_text('Transaction validation failed: ' + message)
 
 async def send_to_server(message):
-    host = 'INSERT_SERVER_IP'
-    port = 3000
+    host = '10.0.0.8'  # Replace with your server IP
+    port = 9090  # Replace with your server TCP port
     reader, writer = None, None
     try:
         reader, writer = await asyncio.open_connection(host, port)
@@ -44,32 +47,28 @@ def validate_transaction(tx_raw):
         tx = bitcoin.deserialize(tx_raw)
         # Check for equal number of inputs and outputs
         if len(tx['ins']) != len(tx['outs']):
-            return False
+            return False, "The number of inputs does not match the number of outputs."
         # Check for maximum 5 inputs
         if len(tx['ins']) > 5:
-            return False
+            return False, "The transaction has more than 5 inputs."
         # Check locktime
         if tx['locktime'] != 0:
-            return False
+            return False, "The transaction's locktime must be 0."
         # Check each input for the correct SigHash type
         for input in tx['ins']:
-            if 'witness' in input:
-                witness = input['witness']
-                if not witness:
-                    return False
+            if 'witness' in input and input['witness']:
                 # Assuming the SigHash type is the last byte of the last item in the witness
-                last_byte = witness[-1][-1]
+                last_byte = input['witness'][-1][-1]
                 if last_byte != (0x83):  # Hex 0x83 stands for SigHashType.SINGLE | SigHashType.ANYONECANPAY
-                    return False
+                    return False, "One or more inputs do not use the required SigHash type SINGLE | ANYONECANPAY."
             else:
-                return False
-        return True
+                return False, "Witness data missing or invalid in one or more inputs."
+        return True, "Transaction is valid."
     except Exception as e:
-        print(f"Error during transaction validation: {e}")
-        return False
+        return False, f"Error during transaction validation: {e}"
 
 def main() -> None:
-    application = Application.builder().token('INSERT_BOT_TOKEN').build()
+    application = Application.builder().token('6931522973:AAGNw6qVUAegczzhSSZlwqOSr77MuVOPfD0').build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_transaction))
