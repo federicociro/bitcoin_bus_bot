@@ -4,13 +4,7 @@ channels:
   - defaults
 dependencies:
   - python=3.10
-  - numpy
-  - pandas
-  - flask
-  - pytest
-  - flake8
+  - pip
   - pip:
     - python-telegram-bot
-    - bitcoin
-    - asyncio
-    - socket
+    - bitcoin 
