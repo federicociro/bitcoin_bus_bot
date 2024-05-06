@@ -57,10 +57,16 @@ def validate_transaction(tx_raw):
         # Check each input for the correct SigHash type
         for input in tx['ins']:
             if 'witness' in input and input['witness']:
+            
+                if len(input['witness']) != 2:
+                    # If len of witness is diff from 2 we know is a P2WSH and not a P2WPKH
+                    return False, "Script is not a P2WPKH"
+
                 # Assuming the SigHash type is the last byte of the last item in the witness
                 last_byte = input['witness'][-1][-1]
                 if last_byte != (0x83):  # Hex 0x83 stands for SigHashType.SINGLE | SigHashType.ANYONECANPAY
                     return False, "One or more inputs do not use the required SigHash type SINGLE | ANYONECANPAY."
+            
             else:
                 return False, "Witness data missing or invalid in one or more inputs."
         return True, "Transaction is valid."
