@@ -2,3 +2,4 @@ python-telegram-bot
 asyncio
 bitcoin
 python-dotenv
+urllib3
