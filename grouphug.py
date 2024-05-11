@@ -1,13 +1,17 @@
+from telegram import Update
+from telegram.ext import (Application, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
+
+from dotenv import load_dotenv
+
 import asyncio
 import logging
 import os
 import socket
 
 import bitcoin
-from dotenv import load_dotenv
-from telegram import Update
-from telegram.ext import (Application, CommandHandler, ContextTypes,
-                          MessageHandler, filters)
+
+
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -53,6 +57,15 @@ async def send_to_server(message):
 def validate_transaction(tx_raw):
     try:
         logging.info("Deserializing transaction")
+        logging.info(f"Received tx_raw: {tx_raw[:50]}")  # prints first 50 chars of tx_raw
+
+        tx_raw = tx_raw.strip()  # Remove leading/trailing whitespace
+        tx_raw = ''.join(tx_raw.split())  # Remove all whitespace
+
+        # Validate that the transaction string is hexadecimal
+        if any(c not in "0123456789abcdefABCDEF" for c in tx_raw):
+            return False, "Transaction data contains non-hexadecimal characters."
+        
         tx = bitcoin.deserialize(tx_raw)
 
         logging.info(f"Transaction inputs: {len(tx['ins'])}, outputs: {len(tx['outs'])}")
