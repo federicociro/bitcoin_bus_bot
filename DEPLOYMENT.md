@@ -25,15 +25,24 @@ nano /path/to/git/repos/your-project.git/hooks/post-receive
 Add the following script:
 ```bash
 #!/bin/bash
-GIT_WORK_TREE=/path/to/your/project git checkout -f
+GIT_WORK_TREE=/home/telegram/bitcoin_bus_bot.git git checkout -f main
 
-# Set environment variables
-echo 'TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}' > /path/to/your/project/.env
-echo 'SERVER_IP=${SERVER_IP}' >> /path/to/your/project/.env 
-echo 'SERVER_PORT=${SERVER_PORT}' >> /path/to/your/project/.env
+# Keep the repository files to run the bot
+TARGET="/home/telegram/bitcoin_bus_bot"
+BRANCH="main"
 
-# Restart the service
-sudo systemctl restart your-service-name
+while read oldrev newrev ref
+do
+    if [[ $ref =~ .*/$BRANCH$ ]]; then
+        echo "Ref $ref received. Deploying ${BRANCH} branch to production..."
+        git --work-tree=$TARGET --git-dir=/home/telegram/bitcoin_bus_bot.git checkout -f
+    else
+        echo "Ref $ref successfully received. Not deploying, since it's not the main branch."
+    fi
+done
+
+# Restart the bot
+sudo systemctl restart grouphug-bot
 ```
 
 Make the hook executable:
