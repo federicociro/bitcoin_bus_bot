@@ -25,11 +25,14 @@ To use this bot, follow these steps:
     - Edit `grouphug.py` file with necessary configurations (Telegram token, server IP, server port).
 3. **Run the Bot**: `python bot.py`
 
+## How to setup with CI/CD
+To setup with CI/CD follow the [Deployment Docuementation](DEPLOYMENT.md)
+
 ## Contribution
 Contributions are welcome! If you'd like to improve the bot or suggest new features, please fork the repository and submit a pull request.
 
 ## License
-This project is licensed under the GNU General Public License (GPL). See `LICENSE` for more information.
+This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for more information.
 
 ## Support
 For support, join our Telegram group or open an issue in the GitHub repository.
