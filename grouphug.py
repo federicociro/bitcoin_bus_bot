@@ -25,8 +25,8 @@ async def handle_transaction(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text('Transaction validation failed: ' + message)
 
 async def send_to_server(message):
-    host = '10.0.0.8'  # Replace with your server IP
-    port = 9090  # Replace with your server TCP port
+    host = '$SERVER_IP'
+    port = '$SERVER_PORT'
     reader, writer = None, None
     try:
         reader, writer = await asyncio.open_connection(host, port)
@@ -75,7 +75,7 @@ def validate_transaction(tx_raw):
         return False, f"Error during transaction validation: {e}"
 
 def main() -> None:
-    application = Application.builder().token('TELEGRAM_BOT_TOKEN').build()
+    application = Application.builder().token('$TELEGRAM_BOT_TOKEN').build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_transaction))
