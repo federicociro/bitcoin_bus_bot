@@ -1,0 +1,2 @@
+# Ignore the actual .env file containing the environment variables
+.env
