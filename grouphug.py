@@ -1,10 +1,13 @@
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from dotenv import load_dotenv
 
 import bitcoin
 import asyncio
 import socket
 import os
+
+load_dotenv()
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('Send me a Bitcoin transaction in raw format.')
@@ -25,8 +28,8 @@ async def handle_transaction(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text('Transaction validation failed: ' + message)
 
 async def send_to_server(message):
-    host = '$SERVER_IP'
-    port = '$SERVER_PORT'
+    host = os.getenv('SERVER_IP')
+    port = int(os.getenv('SERVER_PORT'))
     reader, writer = None, None
     try:
         reader, writer = await asyncio.open_connection(host, port)
@@ -75,7 +78,8 @@ def validate_transaction(tx_raw):
         return False, f"Error during transaction validation: {e}"
 
 def main() -> None:
-    application = Application.builder().token('$TELEGRAM_BOT_TOKEN').build()
+    token = os.getenv('TELEGRAM_BOT_TOKEN')
+    application = Application.builder().token(token).build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_transaction))
