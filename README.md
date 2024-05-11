@@ -26,7 +26,7 @@ To use this bot, follow these steps:
 3. **Run the Bot**: `python bot.py`
 
 ## How to setup with CI/CD
-To setup with CI/CD follow the [Deployment Docuementation](DEPLOYMENT.md)
+To setup with CI/CD follow the [Deployment Documentation](DEPLOYMENT.md)
 
 ## Contribution
 Contributions are welcome! If you'd like to improve the bot or suggest new features, please fork the repository and submit a pull request.
