@@ -19,10 +19,10 @@ This bot interacts with the GroupHug server, which is located at [https://grouph
 
 ## Getting Started
 To use this bot, follow these steps:
-1. **Clone the Repository**: `git clone https://github.com/yourusername/bitcoin-grouphug-telegram-bot.git`
+1. **Clone the Repository**: `git clone https://github.com/federicociro/bitcoin_bus_bot.git`
 2. **Set Up Environment**:
     - Install dependencies: `pip install -r requirements.txt`
-    - Set up your `.env` file with necessary configurations (Telegram token, server IP, server port).
+    - Edit `grouphug.py` file with necessary configurations (Telegram token, server IP, server port).
 3. **Run the Bot**: `python bot.py`
 
 ## Contribution
