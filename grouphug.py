@@ -1,12 +1,11 @@
 import asyncio
 import socket
 import os
+import bitcoin
 
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-
-import bitcoin
 
 load_dotenv()
 
