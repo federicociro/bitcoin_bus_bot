@@ -37,4 +37,4 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         SERVER_IP: ${{ secrets.SERVER_IP }}
         SERVER_PORT: ${{ secrets.SERVER_PORT }}
-      run: python script.py
+      run: python grouphug.py
