@@ -1,4 +1,4 @@
-python-telegram-bot==13.7
+python-telegram-bot
 asyncio
 bitcoin
 python-dotenv
