@@ -1,11 +1,15 @@
 import asyncio
-import socket
+import logging
 import os
-import bitcoin
+import socket
 
+import bitcoin
 from dotenv import load_dotenv
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import (Application, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
+
+logging.basicConfig(level=logging.DEBUG)
 
 load_dotenv()
 
@@ -48,34 +52,55 @@ async def send_to_server(message):
 
 def validate_transaction(tx_raw):
     try:
+        logging.info("Deserializing transaction")
         tx = bitcoin.deserialize(tx_raw)
+
+        logging.info(f"Transaction inputs: {len(tx['ins'])}, outputs: {len(tx['outs'])}")
         # Check for equal number of inputs and outputs
         if len(tx['ins']) != len(tx['outs']):
+            logging.error("Input-output mismatch")
             return False, "The number of inputs does not match the number of outputs."
+        
         # Check for maximum 5 inputs
         if len(tx['ins']) > 5:
+            logging.error("Too many inputs")
             return False, "The transaction has more than 5 inputs."
+        
         # Check locktime
+        logging.info(f"Transaction locktime: {tx['locktime']}")
         if tx['locktime'] != 0:
+            logging.error("Incorrect locktime")
             return False, "The transaction's locktime must be 0."
+        
         # Check each input for the correct SigHash type
-        for input in tx['ins']:
+        for index, input in enumerate(tx['ins']):
             if 'witness' in input and input['witness']:
-            
+                logging.info(f"Witness for input {index}: {input['witness']}")
+                
                 if len(input['witness']) != 2:
-                    # If len of witness is diff from 2 we know is a P2WSH and not a P2WPKH
+                    logging.error("Incorrect witness length")
                     return False, "Script is not a P2WPKH"
-
+                
                 # Assuming the SigHash type is the last byte of the last item in the witness
                 last_byte = input['witness'][-1][-1]
-                if last_byte != (0x83):  # Hex 0x83 stands for SigHashType.SINGLE | SigHashType.ANYONECANPAY
+                logging.info(f"SigHash type for input {index}: {last_byte}")
+                if last_byte != 0x83:
+                    logging.error(f"Incorrect SigHash type at input {index}")
                     return False, "One or more inputs do not use the required SigHash type SINGLE | ANYONECANPAY."
             
             else:
+                logging.error("Missing or invalid witness data")
                 return False, "Witness data missing or invalid in one or more inputs."
+        
+        logging.info("Transaction is valid")
         return True, "Transaction is valid."
     except Exception as e:
+        logging.exception("Error during transaction validation")
         return False, f"Error during transaction validation: {e}"
+
+# Test the function with a sample raw transaction string
+result = validate_transaction("your_raw_transaction_here")
+print(result)
 
 def main() -> None:
     token = os.getenv('TELEGRAM_BOT_TOKEN')
