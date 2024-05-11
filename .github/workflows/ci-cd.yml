@@ -26,10 +26,11 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v2
     - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.3
+      uses: webfactory/ssh-agent@v0.9.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     - name: Add remote and push
       run: |
-        git remote add deploy ssh://${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_IP }}${{ secrets.DEPLOY_PATH }}bitcoin_bus_bot.git
+        ssh-keyscan -p ${{ secrets.DEPLOY_PORT }} ${{ secrets.DEPLOY_IP }} >> ~/.ssh/known_hosts
+        git remote add deploy ssh://${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_IP }}:${{ secrets.DEPLOY_PORT }}${{ secrets.DEPLOY_PATH }}bitcoin_bus_bot.git
         git push deploy main
