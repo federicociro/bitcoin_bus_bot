@@ -14,7 +14,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Lint Code Base
         uses: github/super-linter@v4
         env:
@@ -26,15 +25,11 @@ jobs:
     steps:
     - name: Check out repository
       uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
       with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Run script
-      env:
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        SERVER_IP: ${{ secrets.SERVER_IP }}
-        SERVER_PORT: ${{ secrets.SERVER_PORT }}
-      run: python grouphug.py
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: Add remote and push
+      run: |
+        git remote add deploy ssh://${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_IP }}${{ secrets.DEPLOY_PATH }}bitcoin_bus_bot.git
+        git push deploy main
