@@ -3,14 +3,42 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
+  schedule:
+    - cron: '22 4 * * 5'
 
 jobs:
+  codeql:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ 'ubuntu-latest' }}
+    timeout-minutes: ${{ 360 }}
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: python
+          build-mode: none
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
   run-lint:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,18 +51,9 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
-  codeql:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
-
   deploy:
     needs: [run-lint, codeql]
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
     - name: Check out repository
