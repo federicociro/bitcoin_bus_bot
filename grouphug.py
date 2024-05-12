@@ -1,12 +1,11 @@
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from dotenv import load_dotenv
 import asyncio
+import os
 import bitcoin
 
-# Server and bot settings
-SERVER_IP = 'your_grouphug_backend_here'
-SERVER_PORT = 12345
-TELEGRAM_BOT_TOKEN = 'your_telegram_bot_token_here'
+load_dotenv()
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('Send me a Bitcoin transaction in raw format.')
@@ -17,14 +16,15 @@ async def handle_transaction(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if is_valid:
         message_to_send = f"add_tx {tx_raw}"
         server_response = await send_to_server(message_to_send)
-        response_message = 'Transaction processed. Server response: ' + server_response if server_response else 'Server did not respond.'
-        await update.message.reply_text(response_message)
+        await update.message.reply_text('Transaction processed. Server response: ' + server_response)
     else:
         await update.message.reply_text('Transaction validation failed: ' + message)
 
 async def send_to_server(message):
+    host = os.getenv('$SERVER_IP')
+    port = int(os.getenv('$SERVER_PORT'))
     try:
-        reader, writer = await asyncio.open_connection(SERVER_IP, SERVER_PORT)
+        reader, writer = await asyncio.open_connection(host, port)
         writer.write(message.encode())
         await writer.drain()
         response = await reader.read(100)
@@ -50,7 +50,8 @@ def validate_transaction(tx_raw):
     return True, "Transaction is valid."
 
 def main() -> None:
-    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+    token = os.getenv('$TELEGRAM_BOT_TOKEN')
+    application = Application.builder().token(token).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_transaction))
     application.run_polling()
