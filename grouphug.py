@@ -13,9 +13,7 @@ import bitcoin
 
 load_dotenv()
 
-async def handle_transaction(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-  -> None:
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Send me a Bitcoin transaction in raw format")
 
 async def handle_transaction(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -44,7 +42,7 @@ async def send_to_server(message):
 
 def validate_transaction(tx_raw):
     # Strip and remove all spaces
-    tx_raw = tx_raw.strip().replace(' ', '')
+    #tx_raw = tx_raw.strip().replace(' ', '')
 
     # Check if all characters are valid hexadecimal
     if any(c not in "0123456789abcdefABCDEF" for c in tx_raw):
