@@ -5,15 +5,16 @@ from telegram.ext import (Application, CommandHandler, ContextTypes,
 from dotenv import load_dotenv
 
 import asyncio
+import os
 import logging
 import os
 import socket
 
 import bitcoin
 
-
-
-logging.basicConfig(level=logging.DEBUG)
+from dotenv import load_dotenv
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 load_dotenv()
 
