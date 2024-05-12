@@ -8,6 +8,11 @@ import asyncio
 import os
 import logging
 import socket
+import os
+
+from dotenv import load_dotenv
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 import bitcoin
 
